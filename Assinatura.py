@@ -19,11 +19,13 @@ def createSignatureImage():
     saveNewImage()
 
 def getParams():
-    global signature, figure, output
+    global signature, figure, output, newSignatureWidth, newSignatureHeight
 
     signature = "logos/logo.png"
     figure = "images/image.jpg"
     output = "output/image.jpg"
+    newSignatureWidth = None
+    newSignatureHeight = None
 
     for i in range(1, len(sys.argv)):
         if (sys.argv[i][0] == '-'):
@@ -33,6 +35,10 @@ def getParams():
                 figure = sys.argv[i + 1]
             if (sys.argv[i][1] == 'o'):
                 output = sys.argv[i + 1]
+            if (sys.argv[i][1] == 'w'):
+                newSignatureWidth = int(sys.argv[i + 1])
+            if (sys.argv[i][1] == 'h'):
+                newSignatureHeight = int(sys.argv[i + 1])
 
 def openImages():
     global imgSignature, imgFigure
@@ -54,8 +60,31 @@ def setSpaces():
 
     signatureWidth, signatureHeight, figurWidth, figureHeight = getSizes()
 
+    if (newSignatureWidth):
+        signatureWidth, signatureHeight = resizeSignareByWidth(signatureWidth, signatureHeight)
+    if (newSignatureHeight):
+        signatureWidth, signatureHeight = resizeSignareByWidth(signatureWidth, signatureHeight)
+
     spaceWidth = (figurWidth - signatureWidth) - marginWidth
     spaceHeight = (figureHeight - signatureHeight) - marginHeight
+
+def resizeSignareByWidth(signatureWidth, signatureHeight):
+    widthPorcent = newSignatureWidth / signatureWidth
+
+    size = int(newSignatureWidth), int(signatureHeight * widthPorcent)
+
+    imgSignature.thumbnail(size, Image.ANTIALIAS)
+
+    return size
+
+def resizeSignareByHeight(signatureWidth, signatureHeight):
+    heightPorcent = newSignatureHeight / signatureHeight
+
+    size = int(signatureWidth * heightPorcent), int(newSignatureHeight)
+
+    imgSignature.thumbnail(size, Image.ANTIALIAS)
+
+    return size
 
 def insertSignatureInImage():
     imgFigure.paste(imgSignature, (spaceWidth, spaceHeight), imgSignature)
